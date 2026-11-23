@@ -1,0 +1,1 @@
+- [App Storage compatibility](app-storage-compatibility.md) — preserve sidecar-compatible storage SDK behavior; bucket access must not require Google project-ID discovery.

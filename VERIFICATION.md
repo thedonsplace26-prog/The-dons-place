@@ -1,5 +1,28 @@
 # Initial verification
 
+## Photo-storage follow-up
+
+The default App Storage bucket is now configured. The storage SDK compatibility issue was fixed, and the real-upload API checks and API TypeScript check passed.
+
+All eight photo-check groups passed:
+
+1. Uploads without authentication or with invalid CSRF tokens were rejected.
+2. Three real JPEG, PNG and WebP images uploaded to persistent App Storage.
+3. All six full/thumbnail WebP objects existed; served bytes matched stored bytes. Full images were capped at 1600px and thumbnails at 600px, including an image wider than 1600px.
+4. Cover-first public ordering, saved sort order, alt-text edits and incomplete-order rejection worked.
+5. Fake/corrupt files, files larger than 5MB, batches exceeding 20 files and uploads exceeding 20 apartment photos were rejected without changing saved photos.
+6. Deleting the cover removed both stored variants and cleared the cover reference.
+7. Deleting the apartment removed all remaining photo rows and stored variants, with no pending cleanup entries for the test images.
+8. General gallery upload, public listing and persistent deletion worked.
+
+All temporary test accounts, apartments and tracked image objects were removed. No owner credentials or existing apartment content were changed. These are HTTP/API and real-storage checks, not authenticated browser interaction tests.
+
+Re-run with:
+
+```sh
+pnpm --filter @workspace/api-server exec tsx scripts/photos-smoke.ts
+```
+
 ## Passed
 
 - Full workspace TypeScript checks.
@@ -16,7 +39,6 @@
 
 ## Blocked / not verified
 
-- **Photo storage provisioning failed twice** with an internal Replit service error. Upload-three-photos, thumbnail rendering, cover/reorder/delete with actual uploaded photos, and verifying storage removal after apartment deletion cannot pass until the bucket is provisioned.
 - Browser-driven authenticated admin interactions were not tested. API smoke checks are not a substitute for testing the rendered signed-in UI.
 - Mobile screenshot covers the first homepage viewport, not all pages or interactive menu/dialog states.
 - Loading/error/empty render paths were implemented but have not been exercised in a browser.
@@ -26,10 +48,8 @@
 
 ## Required before launch
 
-1. Provision persistent App Storage and restart the API.
-2. Run real-photo upload, cover/order/delete and storage-cleanup tests.
-3. Check signed-in admin UI and all six public pages at 375px, including error/empty states and WhatsApp messages.
-4. Run a mobile Lighthouse audit on the staging published URL, aiming for scores above 85.
-5. Replace all sample apartment content and photos.
-6. Publish to staging, obtain the real URL and set `SITE_URL`.
-7. Only after staging succeeds, buy/link the preferred available domain, apply actual Replit DNS records and confirm HTTPS.
+1. Check signed-in admin UI and all six public pages at 375px, including error/empty states, upload controls and WhatsApp messages.
+2. Run a mobile Lighthouse audit on the staging published URL, aiming for scores above 85.
+3. Replace all sample apartment content and photos.
+4. Publish to staging, obtain the real URL and set `SITE_URL`.
+5. Only after staging succeeds, buy/link the preferred available domain, apply actual Replit DNS records and confirm HTTPS.

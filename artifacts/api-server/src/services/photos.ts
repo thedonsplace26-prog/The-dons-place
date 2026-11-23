@@ -8,7 +8,8 @@ export class HttpError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
 function storedFile(key: string) {
-  const directory = process.env.PRIVATE_OBJECT_DIR;
+  const defaultBucket = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
+  const directory = process.env.PRIVATE_OBJECT_DIR || (defaultBucket ? `/${defaultBucket}/.private` : undefined);
   if (!directory) throw new HttpError(503, "Persistent photo storage is not configured yet. Please finish App Storage setup.");
   const [bucket, ...prefix] = directory.replace(/^\/+/, "").split("/");
   if (!bucket) throw new HttpError(503, "Persistent photo storage is not configured.");

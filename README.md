@@ -9,7 +9,7 @@ The public website preserves the uploaded HTML and **unchanged original CSS**. G
 - Working development preview: open the **The Don’s Place** app preview.
 - Admin: open `/admin` on the same site. Use the `ADMIN_USERNAME` and `ADMIN_PASSWORD` you set in Replit Secrets.
 - Three **sample** apartments are seeded once. Replace their names, prices, text and photos before launch.
-- **Photo storage is blocked:** Replit's bucket provisioning returned an internal error on two attempts. Uploads return a clear 503 until App Storage is provisioned. There is deliberately no filesystem upload fallback.
+- **Photo storage is configured and tested:** real uploads, WebP conversion, thumbnails, cover/order changes and deletion from persistent App Storage passed. There is no filesystem upload fallback.
 - **Not published yet.** No live production URL, custom-domain DNS values or HTTPS verification can be claimed yet.
 - Preferred domain: **thedonsplace.com**, not confirmed available. Verify availability at a registrar before paying.
 
@@ -52,9 +52,9 @@ For development in Replit, run the existing **API Server** and **The Don’s Pla
 | `PRIVATE_OBJECT_DIR` | Managed persistent bucket path from App Storage setup |
 | `DEFAULT_OBJECT_STORAGE_BUCKET_ID`, `PUBLIC_OBJECT_SEARCH_PATHS` | Managed App Storage configuration |
 
-### Finish photo storage setup
+### Photo storage configuration
 
-Open **App Storage** in Replit, create/connect the project's default bucket, and complete its setup. The managed storage variables above must be available to the API in development and production. Do not enter a guessed bucket name or copy cloud credentials into source files. Restart the API after configuration changes.
+The project's default App Storage bucket is configured. The API uses `PRIVATE_OBJECT_DIR` when supplied; otherwise it uses the `.private` prefix inside `DEFAULT_OBJECT_STORAGE_BUCKET_ID`. No bucket ID is hardcoded. The managed storage variables above must be available to the API in development and production. Do not enter a guessed bucket name or copy cloud credentials into source files. Restart the API after configuration changes.
 
 Uploads are held in memory only while processing; their bytes go to persistent object storage. Genuine JPEG, PNG and WebP bytes are checked, decoded with a 40-megapixel limit, rotated, stripped of metadata and converted to WebP at up to 1600px, plus a 600px thumbnail. Maximum 5MB each and 20 photos per apartment. Stored URLs are same-origin `/api/images/...` routes.
 
@@ -103,7 +103,7 @@ Production uses Helmet, a same-origin script policy, Google Fonts and Maps allow
 
 ## Publish and stage
 
-1. Finish persistent photo storage and the blocked upload checks first.
+1. Persistent photo upload/deletion checks now pass in development; complete the remaining mobile browser and staging checks before launch.
 2. Open **Publishing**, choose **Autoscale**, and keep both registered services:
    - API: build `pnpm --filter @workspace/api-server run build`; run `node --enable-source-maps artifacts/api-server/dist/index.mjs`.
    - Web: build `pnpm --filter @workspace/the-dons-place run build`; run `node artifacts/the-dons-place/server.mjs`.
@@ -156,8 +156,9 @@ Official guidance: https://docs.replit.com/features/data-and-storage/data-recove
 ```sh
 pnpm run typecheck
 pnpm --filter @workspace/api-server exec tsx scripts/smoke.ts
+pnpm --filter @workspace/api-server exec tsx scripts/photos-smoke.ts
 ```
 
-The smoke script creates and removes a temporary admin and apartment; it does not read or change the owner's credentials. Run it only against development with the workflows running.
+The smoke scripts create and remove temporary admins and apartments; they do not read or change the owner's credentials. The photo checks upload real JPEG, PNG and WebP fixtures, verify stored and served WebP variants, exercise cover/order/alt changes and validation limits, and verify deletion from persistent storage. Temporary test records and objects are removed afterward. Run only against development with the workflows running.
 
 See `VERIFICATION.md` for checks performed and checks still blocked. Browser interaction tests and Lighthouse have not been run for this initial build; there are no claimed Lighthouse scores.
