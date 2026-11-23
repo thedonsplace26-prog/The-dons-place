@@ -1,1 +1,2 @@
 - [App Storage compatibility](app-storage-compatibility.md) — preserve sidecar-compatible storage SDK behavior; bucket access must not require Google project-ID discovery.
+- [Hosting target](hosting-target.md) — the user wants Vercel hosting with the custom domain thedonsplace.com.
