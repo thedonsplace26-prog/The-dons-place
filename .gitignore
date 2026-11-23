@@ -1,7 +1,8 @@
 # See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # compiled output
-dist
+dist/
+build/
 tmp
 out-tsc
 *.tsbuildinfo
@@ -15,7 +16,7 @@ out-tsc
 .vercel
 
 # dependencies
-node_modules
+node_modules/
 
 # IDEs and editors
 /.idea
@@ -51,5 +52,25 @@ Thumbs.db
 .github/instructions/nx.instructions.md
 
 # Replit
+.replit
+replit.nix
 .cache/
+.config/
+.upm/
 .local/
+
+# Environment and local runtime data
+.env
+.env.*
+!.env.example
+uploads/
+/attached_assets/
+backup/
+backups/
+*.dump
+*.bak
+*.backup
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.log
