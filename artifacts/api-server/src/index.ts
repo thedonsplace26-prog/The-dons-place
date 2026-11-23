@@ -1,5 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { seed } from "./services/seed";
+import { flushDeletions } from "./services/photos";
 
 const rawPort = process.env["PORT"];
 
@@ -15,7 +17,10 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, (err) => {
+await seed();
+const cleanup = setInterval(() => { void flushDeletions().catch(err => logger.warn({ err }, "Persistent photo cleanup will retry")); }, 60_000);
+cleanup.unref();
+app.listen(port, "0.0.0.0", (err?: Error) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
     process.exit(1);

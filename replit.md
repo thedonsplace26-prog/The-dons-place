@@ -1,6 +1,6 @@
-# [Project name]
+# The Don's Place
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Short let apartment website for DAH Properties in Ajah, Lagos, with a private owner administration panel.
 
 ## Run & Operate
 
@@ -22,23 +22,34 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/the-dons-place` — preserved static public website and vanilla JavaScript admin; production Express static server.
+- `artifacts/api-server` — apartment/settings/photo APIs and PostgreSQL-backed administrator authentication.
+- `migrations` — numbered SQL development migrations; `lib/db/src/schema` mirrors them for Replit Publish.
+- `lib/api-spec/openapi.yaml` — API contract. Regenerate clients and validation after changing it.
+- `README.md` — operation, photo setup, admin guide, backup and custom-domain instructions.
+- `VERIFICATION.md` — performed checks and explicit launch blockers.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Preserve the supplied public HTML layout and CSS. The owner explicitly said not to redesign the existing site.
+- The owner explicitly requested local bcrypt/session authentication for admins. Customers do not have accounts.
+- All booking and payment discussions happen on WhatsApp; do not add checkout or booking records.
+- Keep this supplied pnpm layout rather than replacing the project. Production schema changes go through Replit Publish, not deploy-time migration scripts.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Public apartment list/details, gallery, contact and terms, plus private apartment, photo, pricing and settings management. Sample apartments must be replaced before launch.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Business name is always **The Don's Place**, never add “Lodge”.
+- Preferred domain is **thedonsplace.com**; availability has not been confirmed. Never invent DNS values or a published URL.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Photo uploads require provisioned App Storage; never substitute temporary local disk persistence.
+- `pnpm run migrate` is development-only. Production startup initializes missing data only, never schema.
+- Changing bootstrap admin secrets does not reset existing administrator credentials.
 
 ## Pointers
 

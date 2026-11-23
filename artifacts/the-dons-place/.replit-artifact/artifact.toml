@@ -1,0 +1,23 @@
+kind = "web"
+previewPath = "/"
+title = "The Don’s Place"
+description = "The Don’s Place short let apartments in Ajah, Lagos. Existing public website with WhatsApp enquiries and a private apartment, photo and settings administration panel."
+version = "1.0.0"
+id = "artifacts/the-dons-place"
+router = "path"
+
+[[services]]
+name = "web"
+paths = ["/"]
+localPort = 20855
+
+[services.development]
+run = "pnpm --filter @workspace/the-dons-place run dev"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/the-dons-place", "run", "build"]
+run = ["node", "artifacts/the-dons-place/server.mjs"]
+
+[services.env]
+PORT = "20855"
+BASE_PATH = "/"

@@ -1,36 +1,332 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
-  description: API specification
+  version: 1.0.0
 servers:
   - url: /api
-    description: Base API path
-tags:
-  - name: health
-    description: Health operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
-      tags: [health]
-      summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HealthStatus"
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+  /health:
+    get:
+      operationId: getHealth
+      responses:
+        "200":
+          description: Healthy
+  /apartments:
+    get:
+      operationId: listApartments
+      responses:
+        "200":
+          description: Available apartments
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Apartment" } }
+  /apartments/{slug}:
+    parameters:
+      - { name: slug, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getApartment
+      responses:
+        "200":
+          description: Apartment
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Apartment" }
+  /gallery:
+    get:
+      operationId: getGallery
+      responses:
+        "200":
+          description: Photos
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Photo" } }
+  /settings:
+    get:
+      operationId: getSettings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Settings" }
+  /admin/me:
+    get:
+      operationId: getAdminMe
+      responses:
+        "200":
+          description: Current user and CSRF token
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminSession" }
+  /admin/csrf:
+    get:
+      operationId: getCsrf
+      responses:
+        "200":
+          description: Pre-login CSRF token
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminSession" }
+  /admin/login:
+    post:
+      operationId: adminLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginInput" }
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminSession" }
+  /admin/logout:
+    post:
+      operationId: adminLogout
+      responses:
+        "204": { description: Logged out }
+  /admin/password:
+    post:
+      operationId: changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PasswordInput" }
+      responses:
+        "204": { description: Password changed }
+  /admin/apartments:
+    get:
+      operationId: listAdminApartments
+      responses:
+        "200":
+          description: All apartments
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Apartment" } }
+    post:
+      operationId: createApartment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApartmentInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Apartment" }
+  /admin/apartments/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      operationId: updateApartment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApartmentUpdate" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Apartment" }
+    delete:
+      operationId: deleteApartment
+      responses:
+        "204": { description: Deleted }
+  /admin/apartments/{id}/photos:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: uploadApartmentPhotos
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: "#/components/schemas/PhotoUpload" }
+      responses:
+        "201": { description: Photos uploaded }
+  /admin/gallery:
+    post:
+      operationId: uploadGalleryPhotos
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: "#/components/schemas/PhotoUpload" }
+      responses:
+        "201": { description: Photos uploaded }
+  /admin/photos/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    delete:
+      operationId: deletePhoto
+      responses:
+        "204": { description: Deleted }
+    patch:
+      operationId: updatePhoto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PhotoInput" }
+      responses:
+        "200": { description: Updated }
+  /admin/apartments/{id}/photos/order:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    put:
+      operationId: reorderPhotos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PhotoOrder" }
+      responses:
+        "204": { description: Reordered }
+  /admin/apartments/{id}/cover/{photoId}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: photoId, in: path, required: true, schema: { type: string, format: uuid } }
+    put:
+      operationId: setCover
+      responses:
+        "204": { description: Cover selected }
+  /admin/settings:
+    get:
+      operationId: getAdminSettings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Settings" }
+    put:
+      operationId: updateSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Settings" }
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Settings" }
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
-        status:
-          type: string
-      required:
-        - status
-
+        status: { type: string }
+    AdminSession:
+      type: object
+      required: [csrfToken]
+      properties:
+        username: { type: string }
+        csrfToken: { type: string }
+    LoginInput:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, minLength: 1, maxLength: 100 }
+        password: { type: string, minLength: 1, maxLength: 200 }
+    PasswordInput:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: { type: string, minLength: 1, maxLength: 200 }
+        newPassword: { type: string, minLength: 12, maxLength: 72 }
+    ApartmentInput:
+      type: object
+      required: [name, slug, blurb, price_per_night, highlights, amenities, is_available, is_featured, sort_order]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        slug: { type: string, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", maxLength: 200 }
+        blurb: { type: string, minLength: 1, maxLength: 1000 }
+        description: { type: string, maxLength: 10000 }
+        price_per_night: { type: integer, minimum: 0, maximum: 2147483647 }
+        highlights: { type: array, maxItems: 30, items: { type: string, maxLength: 200 } }
+        amenities: { type: array, maxItems: 30, items: { type: string, maxLength: 200 } }
+        is_available: { type: boolean }
+        is_featured: { type: boolean }
+        is_sample: { type: boolean }
+        sort_order: { type: integer, minimum: 0 }
+    ApartmentUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        slug: { type: string, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", maxLength: 200 }
+        blurb: { type: string, minLength: 1, maxLength: 1000 }
+        description: { type: string, maxLength: 10000 }
+        price_per_night: { type: integer, minimum: 0, maximum: 2147483647 }
+        highlights: { type: array, maxItems: 30, items: { type: string, maxLength: 200 } }
+        amenities: { type: array, maxItems: 30, items: { type: string, maxLength: 200 } }
+        is_available: { type: boolean }
+        is_featured: { type: boolean }
+        is_sample: { type: boolean }
+        sort_order: { type: integer, minimum: 0 }
+    Apartment:
+      allOf:
+        - { $ref: "#/components/schemas/ApartmentInput" }
+        - type: object
+          required: [id, price, photos, photo_records]
+          properties:
+            id: { type: string }
+            price: { type: integer }
+            cover_photo_id: { type: [string, "null"] }
+            photos: { type: array, items: { type: string } }
+            thumbnails: { type: array, items: { type: string } }
+            photo_records: { type: array, items: { $ref: "#/components/schemas/Photo" } }
+    Photo:
+      type: object
+      required: [id, url, sort_order]
+      properties:
+        id: { type: string }
+        apartment_id: { type: [string, "null"] }
+        url: { type: string }
+        thumb_url: { type: [string, "null"] }
+        alt: { type: [string, "null"] }
+        sort_order: { type: integer }
+    PhotoInput:
+      type: object
+      required: [alt]
+      properties:
+        alt: { type: string, maxLength: 500 }
+    PhotoOrder:
+      type: object
+      required: [photoIds]
+      properties:
+        photoIds: { type: array, maxItems: 20, uniqueItems: true, items: { type: string, format: uuid } }
+    PhotoUpload:
+      type: object
+      required: [photos]
+      properties:
+        photos: { type: array, maxItems: 20, items: { type: string, format: binary } }
+    Settings:
+      type: object
+      required: [whatsapp_number, whatsapp_display, email, address, business_name, owner, amenities, terms]
+      properties:
+        whatsapp_number: { type: string, pattern: "^[0-9]{8,15}$" }
+        whatsapp_display: { type: string, maxLength: 50 }
+        email: { type: string, format: email, maxLength: 200 }
+        address: { type: string, minLength: 1, maxLength: 500 }
+        business_name: { type: string, enum: ["The Don's Place"] }
+        owner: { type: string, minLength: 1, maxLength: 200 }
+        amenities: { type: array, maxItems: 30, items: { type: string, maxLength: 200 } }
+        terms: { type: string, maxLength: 20000 }
