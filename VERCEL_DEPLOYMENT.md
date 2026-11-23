@@ -6,8 +6,11 @@
 - Dashboard: https://vercel.com/don-s-place/the-dons-place
 - Vercel-assigned hostname: `the-dons-place.vercel.app` (assigned by Vercel; no application deployment yet).
 - Intended primary domain: `thedonsplace.com`; `www.thedonsplace.com` redirects to it.
+- Both custom hostnames are added and verified in Vercel. The root has no redirect; `www` redirects to the root with HTTP 308.
+- Published Replit backend: `https://apartment-haven.replit.app`. Its health, apartment, gallery and SEO endpoints returned HTTP 200.
+- Vercel's `REPLIT_API_ORIGIN` is configured to that verified origin for production and preview.
 - Replit retains the existing backend, database, session store and photo bucket. Nothing is migrated or deleted.
-- Custom DNS has not been changed. A Vercel project alone is not a working deployment.
+- Agent has not changed DNS records. Vercel still needs its GitHub repository connection and first application deployment.
 
 ## 1. Publish the Replit backend first
 
@@ -36,7 +39,7 @@ The owner must click **Publish**. Obtain the real published HTTPS origin after p
 After the backend is published, set these **non-secret** Vercel build variables:
 
 - `SITE_URL`: `https://thedonsplace.com` (already configured for production and preview).
-- `REPLIT_API_ORIGIN`: the exact, verified Replit published origin, with no `/api` path.
+- `REPLIT_API_ORIGIN`: `https://apartment-haven.replit.app` (configured for production and preview; no `/api` path).
 
 Do not use a `.replit.dev` workspace URL, the Vercel website's own URL, or a guessed `.replit.app` URL. The build deliberately fails if the backend setting is missing or is a development address.
 

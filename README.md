@@ -46,7 +46,7 @@ For development in Replit, run the existing **API Server** and **The Don’s Pla
 | `SESSION_SECRET` | Strong session-signing secret |
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Initial administrator, used only if no admin exists |
 | `NODE_ENV` | `production` in published services; managed workflow sets development locally |
-| `SITE_URL` | Actual verified HTTPS primary site origin; initially use the published staging `.replit.app` URL, then the verified custom domain |
+| `SITE_URL` | Canonical website origin: `https://thedonsplace.com` for the selected hybrid setup; this is not the backend URL |
 | `TRUSTED_SITE_ORIGINS` | Replit API only: comma-separated exact HTTPS website origins allowed through the same-origin Vercel proxy; no wildcards |
 | `REPLIT_API_ORIGIN` | Vercel build only: actual published Replit HTTPS origin, without `/api` or a trailing path |
 | `PORT` | Injected per service |

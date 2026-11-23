@@ -1,5 +1,13 @@
 # Initial verification
 
+## Published backend follow-up
+
+Replit deployment metadata confirmed a successful public Autoscale deployment at `https://apartment-haven.replit.app`.
+
+Read-only production requests returned HTTP 200 for `/api/health`, `/api/apartments`, `/api/gallery` and `/api/seo`. SEO returned the intended canonical origin `https://thedonsplace.com`. No production content was changed.
+
+Vercel now has `SITE_URL` and `REPLIT_API_ORIGIN` configured for production and preview. The custom domains are verified in Vercel and the `www` redirect points to the root. Its repository connection and first application deployment remain pending; live Vercel-to-Replit admin and upload flows are not yet verified.
+
 ## Vercel/Replit hosting preparation
 
 - Created the empty `the-dons-place` Vercel project in the user's team; no application deployment or DNS cutover has been performed.
