@@ -8,7 +8,10 @@
    var path=location.pathname==="/index.html"?"/":location.pathname;
    var slug=new URLSearchParams(location.search).get("slug");
    var href=b.origin+path+(slug&&/^[a-z0-9-]{1,200}$/.test(slug)?"?slug="+slug:"");
-   if(!document.querySelector('link[rel="canonical"]')){var l=document.createElement("link");l.rel="canonical";l.href=href;document.head.appendChild(l)}}
+   var l=document.querySelector('link[rel="canonical"]');
+   if(!l){l=document.createElement("link");l.rel="canonical";document.head.appendChild(l)}
+   l.href=href;
+   var og=document.querySelector('meta[property="og:url"]');if(og)og.content=href;}
   }catch(e){}
   var ld=d.business||d.jsonLd||d.jsonld||d.localBusiness;
   if(ld&&typeof ld==="object"&&!document.getElementById("ld-business")){

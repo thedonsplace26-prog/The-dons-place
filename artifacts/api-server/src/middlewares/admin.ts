@@ -3,6 +3,7 @@ import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "@workspace/db";
 import type { RequestHandler } from "express";
+import { allowedRequestOrigin, trustedSiteOrigins } from "../lib/trustedOrigins";
 
 declare module "express-session" {
   interface SessionData {
@@ -14,6 +15,7 @@ declare module "express-session" {
 
 const secret = process.env.SESSION_SECRET;
 if (!secret) throw new Error("SESSION_SECRET is required.");
+const allowedOrigins = trustedSiteOrigins(process.env.SITE_URL, process.env.TRUSTED_SITE_ORIGINS);
 const PgStore = connectPg(session);
 export const sessionMiddleware = session({
   name: "dons.sid",
@@ -39,7 +41,7 @@ export const csrf: RequestHandler = (req, res, next) => {
     res.status(403).json({ error: "Your security token has expired. Refresh the page and try again." }); return;
   }
   const origin = req.get("Origin");
-  if (origin && new URL(origin).host !== req.get("Host")) {
+  if (origin && !allowedRequestOrigin(origin, req.get("Host"), allowedOrigins)) {
     res.status(403).json({ error: "Cross-origin requests are not allowed." }); return;
   }
   next();

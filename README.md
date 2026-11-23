@@ -47,6 +47,8 @@ For development in Replit, run the existing **API Server** and **The Don’s Pla
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Initial administrator, used only if no admin exists |
 | `NODE_ENV` | `production` in published services; managed workflow sets development locally |
 | `SITE_URL` | Actual verified HTTPS primary site origin; initially use the published staging `.replit.app` URL, then the verified custom domain |
+| `TRUSTED_SITE_ORIGINS` | Replit API only: comma-separated exact HTTPS website origins allowed through the same-origin Vercel proxy; no wildcards |
+| `REPLIT_API_ORIGIN` | Vercel build only: actual published Replit HTTPS origin, without `/api` or a trailing path |
 | `PORT` | Injected per service |
 | `BASE_PATH` | `/` for the public site, injected by the artifact workflow |
 | `PRIVATE_OBJECT_DIR` | Managed persistent bucket path from App Storage setup |
@@ -103,42 +105,21 @@ Production uses Helmet, a same-origin script policy, Google Fonts and Maps allow
 
 ## Publish and stage
 
-1. Persistent photo upload/deletion checks now pass in development; complete the remaining mobile browser and staging checks before launch.
-2. Open **Publishing**, choose **Autoscale**, and keep both registered services:
-   - API: build `pnpm --filter @workspace/api-server run build`; run `node --enable-source-maps artifacts/api-server/dist/index.mjs`.
-   - Web: build `pnpm --filter @workspace/the-dons-place run build`; run `node artifacts/the-dons-place/server.mjs`.
-   - API health endpoint: `/api/health` returns `{"ok":true}`. `/api/healthz` is also supported.
-3. Confirm production Secrets and persistent storage, and let Publish apply the managed database schema. Do not choose to overwrite existing production rows with development data on subsequent releases.
-4. The owner must click **Publish**. Publishing has not been done automatically.
-5. Obtain the actual `.replit.app` URL from Publishing. Set `SITE_URL` to that exact HTTPS origin, then republish.
-6. Test the staged site and admin on that URL before changing DNS.
-7. Check `/api/health`, all six public pages, `/admin`, photos, WhatsApp links, canonical URLs, `/sitemap.xml`, HTTPS and 404s.
+The selected setup is **Vercel for the website, with the backend, PostgreSQL sessions and persistent photo storage on Replit**. Follow [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for the ordered rollout.
+
+- Vercel builds the original static HTML/CSS/JS using `node artifacts/the-dons-place/scripts/build-vercel.mjs`. No backend packages, credentials or Vite development plugins are needed there.
+- Vercel forwards `/api/*`, including authentication, multipart uploads and stored images, to the actual published Replit origin. Browser requests and cookies stay on the website's origin.
+- The build fails explicitly until `SITE_URL` and `REPLIT_API_ORIGIN` are configured. A workspace `.replit.dev` address is never accepted as a production backend.
+- Keep the existing registered Replit production services for the initial rollout. The owner must click **Publish**; no Replit deployment is started automatically.
+- Test the Vercel-provided hostname, admin and uploads before changing the custom domain's DNS.
 
 ## Domain and DNS
 
-**thedonsplace.com** is the preferred domain, but availability is **not verified**. Check it with the registrar before buying. Alternatives are `thedonsplace.com.ng` and `thedonsplace.ng`; `.ng` may require extra registrant information.
+The user supplied **thedonsplace.com** as their custom domain. Add the root domain and `www.thedonsplace.com` to **Vercel**, not Replit, after staging checks pass. Use the exact A/CNAME and any verification TXT records shown by Vercel for this project; do not guess their values.
 
-After publishing:
+Keep the current DNS provider and preserve all email MX/TXT records. Change only the website records after checking for an existing live site. Verify HTTPS for both hostnames and redirect `www` to the root domain.
 
-1. Open **Publishing → Domains → Link a domain** and enter `thedonsplace.com`.
-2. Replit displays the actual required **A** and **TXT** records. Copy them exactly.
-3. At the registrar, open DNS management. Remove conflicting A/AAAA records for the same host only after checking that no other site depends on them.
-4. Add the records Replit provides:
-
-| Type | Host/name | Value |
-|---|---|---|
-| A | `@` (root, or the registrar's blank-root equivalent) | **Exact IP displayed by Replit for the root domain** |
-| TXT | **Exact verification host displayed by Replit** | **Exact verification token displayed by Replit** |
-| A | `www` | **Exact IP displayed when linking `www.thedonsplace.com` separately** |
-| TXT | **Exact verification host displayed for `www`, if requested** | **Exact token for that hostname** |
-
-These are a setup worksheet, **not invented DNS values**. Exact numeric/token values cannot be supplied before the deployment and domain link exist. If Replit displays a CNAME instead for a hostname, use its displayed record rather than creating an incompatible A record.
-
-5. Link `www.thedonsplace.com` as a separate hostname in Replit, verify its DNS and TLS, and set the root as primary.
-6. After the root domain is verified and HTTPS is active, set `SITE_URL=https://thedonsplace.com` and republish. The production web server permanently redirects the verified `www` host to this primary origin and forwards HTTP requests to HTTPS.
-7. Verify redirects and certificates for **both** hostnames. DNS propagation can take minutes to **48 hours**. Do not switch DNS before staging passes.
-
-Never point DNS at a development `.replit.dev` address.
+`SITE_URL=https://thedonsplace.com` is the intended canonical origin. Replit's production `TRUSTED_SITE_ORIGINS` also allows the exact Vercel-provided hostname for testing before DNS cutover. This does not enable browser CORS or allow arbitrary preview sites.
 
 ## Daily backups and recovery
 

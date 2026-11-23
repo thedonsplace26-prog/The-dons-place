@@ -1,5 +1,18 @@
 # Initial verification
 
+## Vercel/Replit hosting preparation
+
+- Created the empty `the-dons-place` Vercel project in the user's team; no application deployment or DNS cutover has been performed.
+- Seven routing/metadata/origin-policy tests passed.
+- A complete local Vercel static-output build passed using a clearly isolated test backend origin. All six public pages, admin files, bundled assets and canonical/Open Graph metadata were present, and the supplied CSS was unchanged. The fixture build output was removed afterward.
+- The Replit API TypeScript check and browser SEO script syntax check passed.
+- After restarting the API and web workflows, development HTTP smoke checks passed, including valid same-host origins, rejection of untrusted and malformed origins, secure sessions, CSRF, apartment CRUD, password changes and five-attempt lockout.
+- A 375px homepage screenshot showed the original layout with no browser errors.
+- Required production secret names were checked for presence without reading their values. The intended canonical domain and exact Vercel hostname were configured as non-secret production origin settings.
+- Live Vercel-to-Replit routing, proxied cookies, multipart batches, production database readiness, custom-domain DNS and HTTPS still require the backend and website to be published and tested. No claim of a live deployment is made.
+
+See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for the next steps. The deployment configuration is prepared locally; GitHub still needs the updated source before the Vercel project is connected and deployed.
+
 ## Photo-storage follow-up
 
 The default App Storage bucket is now configured. The storage SDK compatibility issue was fixed, and the real-upload API checks and API TypeScript check passed.

@@ -11,10 +11,10 @@ const octet = 1 + randomBytes(1)[0] % 125;
 const testIps = [`203.0.113.${octet}`, `203.0.113.${octet + 128}`];
 let ip = testIps[0];
 let cookie = "", csrf = "", apartmentId = "", adminId = "";
-async function request(method: string, path: string, body?: unknown, expected = 200) {
+async function request(method: string, path: string, body?: unknown, expected = 200, origin = "https://localhost") {
   const response = await fetch(`http://localhost:80/api${path}`, {
     method,
-    headers: { "Content-Type": "application/json", "X-Forwarded-Proto": "https", "X-Forwarded-For": ip, ...(cookie ? { Cookie: cookie } : {}), ...(csrf ? { "X-CSRF-Token": csrf } : {}) },
+    headers: { "Content-Type": "application/json", "X-Forwarded-Proto": "https", "X-Forwarded-For": ip, Origin: origin, ...(cookie ? { Cookie: cookie } : {}), ...(csrf ? { "X-CSRF-Token": csrf } : {}) },
     body: body === undefined ? undefined : JSON.stringify(body)
   });
   const set = response.headers.get("set-cookie");
@@ -38,6 +38,8 @@ try {
   await request("POST", "/admin/login", { username, password }, 403);
   csrf = savedToken;
   csrf = (await request("POST", "/admin/login", { username, password })).csrfToken;
+  await request("POST", "/admin/logout", undefined, 403, "https://untrusted.example");
+  await request("POST", "/admin/logout", undefined, 403, "not-a-valid-origin");
   assert.equal((await request("GET", "/admin/me")).username, username);
   const input = { name: "API smoke apartment", slug: `smoke-${randomUUID()}`, blurb: "Temporary development test", description: "", price_per_night: 12345, highlights: [], amenities: [], is_available: true, is_featured: false, is_sample: false, sort_order: 100 };
   apartmentId = (await request("POST", "/admin/apartments", input, 201)).id;
