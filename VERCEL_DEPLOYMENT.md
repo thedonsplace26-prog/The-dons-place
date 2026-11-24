@@ -38,7 +38,7 @@ The owner must click **Publish**. Obtain the real published HTTPS origin after p
 
 After the backend is published, set these **non-secret** Vercel build variables:
 
-- `SITE_URL`: `https://thedonsplace.com` (already configured for production and preview).
+- `SITE_URL`: `https://thedonsplace.com` (configured for production and preview; if Vercel fails to inject it, the static build uses this same verified canonical-domain constant).
 - `REPLIT_API_ORIGIN`: `https://apartment-haven.replit.app` (configured for production and preview; no `/api` path).
 
 Do not use a `.replit.dev` workspace URL, the Vercel website's own URL, or a guessed `.replit.app` URL. The build deliberately fails if the backend setting is missing or is a development address.

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { httpsOrigin, pageMetadata, vercelConfig } from "./vercel-config.mjs";
+import { CANONICAL_SITE_ORIGIN, configuredSiteOrigin, httpsOrigin, pageMetadata, vercelConfig } from "./vercel-config.mjs";
 
 const api = "https://backend.example.com";
 const site = "https://thedonsplace.com";
@@ -9,6 +9,10 @@ test("only public HTTPS origins are accepted; missing backend fails explicitly",
     assert.throws(() => httpsOrigin(value, "REPLIT_API_ORIGIN"));
   }
   assert.equal(httpsOrigin(api + "/", "REPLIT_API_ORIGIN"), api);
+  assert.equal(configuredSiteOrigin(undefined), CANONICAL_SITE_ORIGIN);
+  assert.equal(configuredSiteOrigin("  "), CANONICAL_SITE_ORIGIN);
+  assert.equal(configuredSiteOrigin(site), site);
+  assert.throws(() => configuredSiteOrigin("http://thedonsplace.com"));
   assert.throws(() => vercelConfig(site, site));
 });
 test("API, multipart uploads and image URLs reach the same backend without a function", () => {

@@ -1,5 +1,13 @@
 # Initial verification
 
+## Vercel missing build variable follow-up
+
+Vercel's failed build reported that `SITE_URL` was not present or not a complete HTTPS origin in that build process. The project environment currently contains `https://thedonsplace.com` and `REPLIT_API_ORIGIN` is configured to the verified backend, but Vercel did not pass `SITE_URL` into the failed build.
+
+The static build now defaults a missing or blank `SITE_URL` to the user's verified canonical origin, `https://thedonsplace.com`. Any explicitly supplied value still has to pass strict HTTPS-origin validation; the Replit backend origin remains required and strictly validated.
+
+All four routing tests pass. A production-shaped build was also run with `SITE_URL` deliberately unset: it produced canonical tags for the custom domain and still routed to the published backend. This local check does not by itself prove that Vercel's next hosted deployment has succeeded.
+
 ## Published backend follow-up
 
 Replit deployment metadata confirmed a successful public Autoscale deployment at `https://apartment-haven.replit.app`.

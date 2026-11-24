@@ -1,5 +1,7 @@
 import { isIP } from "node:net";
 
+export const CANONICAL_SITE_ORIGIN = "https://thedonsplace.com";
+
 export function httpsOrigin(value, name) {
   let url;
   try { url = new URL(value); } catch { throw new Error(`${name} must be a complete HTTPS origin.`); }
@@ -9,6 +11,10 @@ export function httpsOrigin(value, name) {
     throw new Error(`${name} must be a public HTTPS origin, not a development URL or a URL containing a path or credentials.`);
   }
   return url.origin;
+}
+
+export function configuredSiteOrigin(value) {
+  return httpsOrigin(value?.trim() || CANONICAL_SITE_ORIGIN, "SITE_URL");
 }
 
 export function vercelConfig(apiOrigin, siteOrigin) {
