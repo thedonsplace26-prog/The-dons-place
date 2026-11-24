@@ -1,33 +1,16 @@
 # Initial verification
 
-## Vercel missing build variable follow-up
+## Vercel production follow-up
 
-Vercel's failed build reported that `SITE_URL` was not present or not a complete HTTPS origin in that build process. The project environment currently contains `https://thedonsplace.com` and `REPLIT_API_ORIGIN` is configured to the verified backend, but Vercel did not pass `SITE_URL` into the failed build.
+The initial `SITE_URL` build error came from selecting the Vercel project linked to the custom domain: `the-donsplace.com` belonged to `the-dons-place-4jfc`, whose environment variable list was empty. The separately prepared `the-dons-place` project had the variables but did not own the custom domain. Vercel's current project environment was repaired; both exact origins are now present on the domain-linked project.
 
-The static build now defaults a missing or blank `SITE_URL` to the user's verified canonical origin, `https://thedonsplace.com`. Any explicitly supplied value still has to pass strict HTTPS-origin validation; the Replit backend origin remains required and strictly validated.
+The build also now falls back to the verified canonical domain if Vercel omits `SITE_URL`. A new production build of `main` completed in Vercel with Ready state and the root, `www`, project preview aliases assigned.
 
-All four routing tests pass. A production-shaped build was also run with `SITE_URL` deliberately unset: it produced canonical tags for the custom domain and still routed to the published backend. This local check does not by itself prove that Vercel's next hosted deployment has succeeded.
+Read-only production checks through `https://thedonsplace.com` passed: homepage and all five other public HTML pages; `/admin/` with `no-store` and `noindex`; `/api/health`, apartment and gallery APIs; sitemap, robots and branded 404; and `www` → root HTTPS 308 redirect.
 
-## Published backend follow-up
+The custom-domain admin session endpoint returned the expected secure, HTTP-only, SameSite=Lax session cookie. A mutation request with an untrusted origin was rejected with 403; a same-site request reached normal input validation. No administrator credentials were used.
 
-Replit deployment metadata confirmed a successful public Autoscale deployment at `https://apartment-haven.replit.app`.
-
-Read-only production requests returned HTTP 200 for `/api/health`, `/api/apartments`, `/api/gallery` and `/api/seo`. SEO returned the intended canonical origin `https://thedonsplace.com`. No production content was changed.
-
-Vercel now has `SITE_URL` and `REPLIT_API_ORIGIN` configured for production and preview. The custom domains are verified in Vercel and the `www` redirect points to the root. Its repository connection and first application deployment remain pending; live Vercel-to-Replit admin and upload flows are not yet verified.
-
-## Vercel/Replit hosting preparation
-
-- Created the empty `the-dons-place` Vercel project in the user's team; no application deployment or DNS cutover has been performed.
-- Seven routing/metadata/origin-policy tests passed.
-- A complete local Vercel static-output build passed using a clearly isolated test backend origin. All six public pages, admin files, bundled assets and canonical/Open Graph metadata were present, and the supplied CSS was unchanged. The fixture build output was removed afterward.
-- The Replit API TypeScript check and browser SEO script syntax check passed.
-- After restarting the API and web workflows, development HTTP smoke checks passed, including valid same-host origins, rejection of untrusted and malformed origins, secure sessions, CSRF, apartment CRUD, password changes and five-attempt lockout.
-- A 375px homepage screenshot showed the original layout with no browser errors.
-- Required production secret names were checked for presence without reading their values. The intended canonical domain and exact Vercel hostname were configured as non-secret production origin settings.
-- Live Vercel-to-Replit routing, proxied cookies, multipart batches, production database readiness, custom-domain DNS and HTTPS still require the backend and website to be published and tested. No claim of a live deployment is made.
-
-See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for the next steps. The deployment configuration is prepared locally; GitHub still needs the updated source before the Vercel project is connected and deployed.
+Vercel rewrites public API requests to Replit. Real multi-file photo upload and authenticated admin UI operation through the production domain are not claimed as tested here.
 
 ## Photo-storage follow-up
 
@@ -72,13 +55,10 @@ pnpm --filter @workspace/api-server exec tsx scripts/photos-smoke.ts
 - Mobile screenshot covers the first homepage viewport, not all pages or interactive menu/dialog states.
 - Loading/error/empty render paths were implemented but have not been exercised in a browser.
 - Lighthouse was **not run**; no Performance, Accessibility or SEO scores are claimed.
-- Production HTTP/HTTPS redirects, security headers and branded 404 need staging verification after publishing. The development branded 404 returned HTTP 404.
-- No publish has occurred. Production `.replit.app` URL, domain availability, registrar records, certificates, DNS propagation, canonical URLs and published sitemap are not verified.
+- Signed-in admin browser workflows and authenticated photo upload through the Vercel domain have not been verified. The production API, session-cookie flags, origin rejection, public pages and `www` redirect were checked.
 
-## Required before launch
+## Remaining quality checks
 
-1. Check signed-in admin UI and all six public pages at 375px, including error/empty states, upload controls and WhatsApp messages.
-2. Run a mobile Lighthouse audit on the staging published URL, aiming for scores above 85.
-3. Replace all sample apartment content and photos.
-4. Publish to staging, obtain the real URL and set `SITE_URL`.
-5. Only after staging succeeds, buy/link the preferred available domain, apply actual Replit DNS records and confirm HTTPS.
+1. Check signed-in admin UI and photo uploads through `https://thedonsplace.com`, including apartment edits and multi-file uploads.
+2. Run a mobile Lighthouse audit on the live site; no Performance, Accessibility or SEO scores are claimed yet.
+3. Replace sample apartment content and photos if they are not final.
